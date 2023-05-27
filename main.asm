@@ -7,6 +7,10 @@ newline: .asciiz "\n"
 prompt_fahrenheit: .asciiz "Digite a temperatura em Fahrenheit: "
 resultado_celsius: .asciiz "A temperatura em Celsius é: "
 
+prompt_fibonacci: .asciiz "Digite o valor de N para calcular o termo de Fibonacci: "
+resultado_fibonacci: .asciiz "O termo de Fibonacci é: "
+
+
 .text
 .globl main
 
@@ -66,7 +70,52 @@ opcao1:
 
     j main              # Volta ao início do loop
 
+opcao2:
+    # Exibe o prompt para digitar o valor de N
+    li $v0, 4           # Carrega o valor 4 em $v0 (código para imprimir string)
+    la $a0, prompt_fibonacci   # Carrega o endereço da mensagem 'prompt_fibonacci' em $a0
+    syscall             # Executa a chamada de sistema para imprimir a mensagem
 
+    # Lê o valor de N
+    li $v0, 5           # Carrega o valor 5 em $v0 (código para ler um inteiro)
+    syscall             # Executa a chamada de sistema para ler um inteiro
+    move $t4, $v0       # Move o valor lido para o registrador $t4
+
+    # Inicializa os primeiros dois termos da sequência de Fibonacci
+    li $t2, 1           # Carrega o valor 1 em $t2 (Fibonacci(N-2))
+    li $t3, 1           # Carrega o valor 1 em $t3 (Fibonacci(N-1))
+
+    # Verifica se N é igual a 0 ou 1 e, se sim, o termo de Fibonacci é igual a N
+    beqz $t4, fibonacci_result     # Se $t4 for igual a 0, pula para a etiqueta 'fibonacci_result'
+    beq $t4, 1, fibonacci_result   # Se $t4 for igual a 1, pula para a etiqueta 'fibonacci_result'
+
+    # Calcula o termo de Fibonacci para N > 1
+    addi $t4, $t4, -2   # Subtrai 2 de $t4 (N - 2)
+
+    fibonacci_loop:
+        add $t5, $t2, $t3   # Soma $t2 e $t3 e armazena o resultado em $t5
+        move $t2, $t3       # Move o valor de $t3 para $t2 (Fibonacci(N-2) = Fibonacci(N-1))
+        move $t3, $t5       # Move o valor de $t5 para $t3 (Fibonacci(N-1) = Fibonacci(N))
+        addi $t4, $t4, -1   # Subtrai 1 de $t4 (N = N - 1)
+        bgtz $t4, fibonacci_loop   # Se $t4 for maior que 0, pula para a etiqueta 'fibonacci_loop'
+
+    fibonacci_result:
+    # Exibe o resultado
+    li $v0, 4           # Carrega o valor 4 em $v0 (código para imprimir string)
+    la $a0, resultado_fibonacci   # Carrega o endereço da mensagem 'resultado_fibonacci' em $a0
+    syscall             # Executa a chamada de sistema para imprimir a mensagem
+
+    move $a0, $t5       # Move o valor de $t5 para $a0 (resultado do termo de Fibonacci)
+    li $v0, 1           # Carrega o valor 1 em $v0 (código para imprimir um inteiro)
+    syscall             # Executa a chamada de sistema para imprimir o inteiro
+
+    # Exibe uma nova linha
+    li $v0, 4           # Carrega o valor 4 em $v0 (código para imprimir string)
+    la $a0, newline     # Carrega o endereço da mensagem 'newline' em $a0
+    syscall             # Executa a chamada de sistema para imprimir a mensagem
+
+    j main              # Volta ao início do loop
+    
 sair:
     # Sai do programa
     li $v0, 10          # Carrega o valor 10 em $v0 (código para encerrar o programa)
