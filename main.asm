@@ -10,6 +10,8 @@ resultado_celsius: .asciiz "A temperatura em Celsius é: "
 prompt_fibonacci: .asciiz "Digite o valor de N para calcular o termo de Fibonacci: "
 resultado_fibonacci: .asciiz "O termo de Fibonacci é: "
 
+prompt_par: .asciiz "Digite o valor de N para calcular o enésimo número par: "
+resultado_par: .asciiz "O enésimo número par é: "
 
 .text
 .globl main
@@ -106,6 +108,44 @@ opcao2:
     syscall             # Executa a chamada de sistema para imprimir a mensagem
 
     move $a0, $t5       # Move o valor de $t5 para $a0 (resultado do termo de Fibonacci)
+    li $v0, 1           # Carrega o valor 1 em $v0 (código para imprimir um inteiro)
+    syscall             # Executa a chamada de sistema para imprimir o inteiro
+
+    # Exibe uma nova linha
+    li $v0, 4           # Carrega o valor 4 em $v0 (código para imprimir string)
+    la $a0, newline     # Carrega o endereço da mensagem 'newline' em $a0
+    syscall             # Executa a chamada de sistema para imprimir a mensagem
+
+    j main              # Volta ao início do loop
+    
+opcao3:
+    # Exibe o prompt para digitar o valor de N para calcular o enésimo número par
+    li $v0, 4           # Carrega o valor 4 em $v0 (código para imprimir string)
+    la $a0, prompt_par  # Carrega o endereço da mensagem 'prompt_par' em $a0
+    syscall             # Executa a chamada de sistema para imprimir a mensagem
+
+    # Lê o valor de N
+    li $v0, 5           # Carrega o valor 5 em $v0 (código para ler um inteiro)
+    syscall             # Executa a chamada de sistema para ler um inteiro
+    move $t6, $v0       # Move o valor lido para o registrador $t6
+
+    # Calcula o enésimo número par
+    li $t7, 0           # Inicializa o contador em 0
+    li $t8, 0           # Inicializa o número par em 0
+
+    enesimo_par_loop:
+        addi $t8, $t8, 2    # Adiciona 2 ao número par
+        addi $t7, $t7, 1    # Adiciona 1 ao contador
+
+        # Verifica se o contador atingiu o valor N
+        bne $t7, $t6, enesimo_par_loop   # Se $t7 for diferente de $t6, pula para a etiqueta 'enesimo_par_loop'
+
+    # Exibe o resultado
+    li $v0, 4           # Carrega o valor 4 em $v0 (código para imprimir string)
+    la $a0, resultado_par   # Carrega o endereço da mensagem 'resultado_par' em $a0
+    syscall             # Executa a chamada de sistema para imprimir a mensagem
+
+    move $a0, $t8       # Move o valor de $t8 para $a0 (enésimo número par)
     li $v0, 1           # Carrega o valor 1 em $v0 (código para imprimir um inteiro)
     syscall             # Executa a chamada de sistema para imprimir o inteiro
 
